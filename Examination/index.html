@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Kwame Jephthah's House</title>
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.3.3/dist/aframe-environment-component.min.js"></script>
+    <script>
+        // Gate opener component for interaction
+        AFRAME.registerComponent('gate-opener', {
+            init: function () {
+                this.el.addEventListener('click', () => {
+                    this.el.setAttribute('animation', 'property: rotation; to: 0 90 0; dur: 2000');
+                });
+            }
+        });
+
+        // Texture scroller for the water animation
+        AFRAME.registerComponent('texture-scroller', {
+            schema: {
+                speed: { type: 'vec2', default: { x: 0.001, y: 0.002 } }
+            },
+            init: function () {
+                this.material = this.el.getObject3D('mesh').material;
+                if (this.material && this.material.map) {
+                    this.material.map.wrapS = this.material.map.wrapT = THREE.RepeatWrapping;
+                }
+            },
+            tick: function (time, timeDelta) {
+                if (this.material && this.material.map) {
+                    this.material.map.offset.x += this.data.speed.x * (timeDelta / 1000);
+                    this.material.map.offset.y += this.data.speed.y * (timeDelta / 1000);
+                }
+            }
+        });
+    </script>
+</head>
+
+<body>
+    <a-scene renderer="colorManagement: true;">
+        
+        <a-assets>
+            <a-asset-item id="apartment-model" src="models/modern_apartment (2).glb"></a-asset-item>
+            <a-asset-item id="mercedes-model" src="models/mercedes_maybach_concept.glb"></a-asset-item>
+            <a-asset-item id="zombie_dog" src="models/zombie_dog.glb"></a-asset-item>
+            
+            <a-asset-item id="basketball-model" src="/models/basketball.glb"></a-asset-item>
+
+            <img id="water-normal" src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/textures/water/Water_1_M_Normal.jpg">
+            <img id="tile-texture" src="textures/pexels-pixabay-260286.jpg">
+        </a-assets>
+
+        <a-entity id="perimeter">
+            <a-box position="0 2 -20" width="40" height="2" depth="0.5" color="white"></a-box>
+            <a-box position="30 2 0" width="0.5" height="2" depth="20" color="white"></a-box>
+            <a-box position="-30 2 0" width="0.5" height="2" depth="20" color="white"></a-box>
+            <a-box position="-17.5 2 20" width="25" height="2" depth="0.5" color="white"></a-box>
+            <a-box position="17.5 2 20" width="25" height="2" depth="0.5" color="white"></a-box>
+            <a-box position="-5 2.5 20" width="1.2" height="1" depth="0.5" color="#555"></a-box>
+            <a-box position="5 2.5 20" width="1.2" height="1" depth="0.5" color="#555"></a-box>
+
+            <a-box class="clickable" gate-opener position="-2.5 2 20" width="4.8" height="4" depth="0.05" color="#222" opacity="0.8"></a-box>
+            <a-box class="clickable" gate-opener position="2.5 2 20" width="4.8" height="4" depth="0.05" color="#222" opacity="0.8"></a-box>
+        </a-entity>
+
+        <a-entity environment="preset: forest; lighting: distant; groundColor: #445a2c; grid: none"></a-entity>
+
+        <a-entity id="rig" position="-3 0.1 20">
+            <a-entity camera id="camera" look-controls wasd-controls="acceleration: 45" position="0 1.6 0">
+                <a-entity cursor="fuse: false; rayOrigin: mouse;"
+                          raycaster="objects: .clickable"
+                          position="0 0 -1"
+                          geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
+                          material="color: cyan; shader: flat">
+                </a-entity>
+            </a-entity>
+        </a-entity>
+
+        <a-entity gltf-model="#apartment-model" position="-5 -0.3 7" scale="1 1 1" rotation="0 90 0"></a-entity>
+
+        <a-entity gltf-model="#mercedes-model" position="-10 0 0" scale="1 0.5 0.5" rotation="0 2 0"></a-entity>
+
+        <a-entity gltf-model="#zombie_dog" position="2 0 2" scale="0.02 0.009 0.01" rotation="0 -45 0"></a-entity>
+
+        <a-entity 
+    gltf-model="#basketball-model" 
+    position="-1.95 0.50 10" 
+    scale="0.3 0.3 0.3"
+    rotation="0 90 0"
+    shadow="cast: true">
+</a-entity>
+
+        <a-entity position="10 0 -2">
+            <a-plane position="0 0.7 0" rotation="-90 0 0" width="6" height="10"
+                material="color: #00aaff; opacity: 0.6; transparent: true; normalMap: #water-normal; normalTextureRepeat: 4 4; roughness: 0.1"
+                texture-scroller="speed: 0.05 0.08">
+            </a-plane>
+            <a-plane position="0 0.05 0" rotation="-90 0 0" width="6" height="10" src="#tile-texture" repeat="6 10"></a-plane>
+            <a-box position="0 0.3 0" width="6.4" height="0.8" depth="10.4" color="#ccc" material="roughness: 1"></a-box>
+        </a-entity>
+
+        <a-light type="ambient" intensity="0.6"></a-light>
+        <a-light type="directional" position="1 4 2" intensity="0.8"></a-light>
+
+    </a-scene>
+</body>
+</html>
